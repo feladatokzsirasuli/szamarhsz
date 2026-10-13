@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Szamárháromszög gyakorló</title>
+    <style>
+        body{font-family:'Segoe UI',sans-serif;background-color:#121824;color:#e2e8f0;display:flex;flex-direction:column;align-items:center;padding:1px;margin:0}
+        h1{color:#38bdf8;margin-bottom:25px}
+        .container{background:#1e293b;padding:30px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.5);max-width:600px;width:100%;box-sizing:border-box;text-align:center;border:1px solid #334155}
+        input,select,button{font-size:20px;padding:10px;margin:10px 5px;border-radius:8px;border:1px solid #475569;background-color:#0f172a;color:#e2e8f0;font-family:'Garamond',Georgia,serif}
+        input:focus,select:focus{outline:2px solid #38bdf8}
+        button{background-color:#0284c7;color:white;border:none;cursor:pointer;font-weight:bold;transition:all 0.2s}
+        button:hover{background-color:#0369a1;transform:translateY(-1px)}
+        .task-box{background:#0f172a;padding:15px;border-radius:8px;margin-bottom:20px;font-size:18px;font-weight:500;border-left:5px solid #38bdf8;text-align:left;line-height:1.5}
+        .instruction{font-style:italic;margin-bottom:5px;color:#94a3b8;font-size:18px}
+        .triangle-wrapper{position:relative;width:450px;height:260px;margin:0 auto;display:block}
+        .triangle-svg{width:100%;height:100%;overflow:visible}
+        .node{position:absolute;width:52px;height:52px;line-height:46px;background:#1e293b;border:3px solid #64748b;border-radius:50%;font-weight:bold;font-size:22px;font-family:'Garamond',Georgia,serif;cursor:pointer;transition:all 0.3s;user-select:none;z-index:10;color:#e2e8f0;box-sizing:border-box}
+        .node:hover{background:#334155;transform:scale(1.1);border-color:#38bdf8}
+        .node.selected{background:#ef4444;color:white;border-color:#b91c1c;box-shadow:0 0 20px rgba(239,68,68,0.6);opacity:0.25}
+        #node-top{top:40px;left:136px}
+        #node-left{bottom:95px;left:85px}
+        #node-right{bottom:95px;left:180px}
+        .rho-font{font-family:'Garamond',Georgia,serif;font-style:italic;font-size:28px}
+        .input-group{margin-top:10px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;font-size:20px}
+        .break{flex-basis:100%;height:10px;}
+        .feedback{margin-top:15px;font-size:18px;font-weight:bold;height:25px}
+        .correct{color:#4ade80;text-shadow:0 0 10px rgba(74,222,128,0.3)}
+        .wrong{color:#f87171;text-shadow:0 0 10px rgba(248,113,113,0.3)}
+        .score{font-size:16px;margin-top:15px;color:#94a3b8}
+    </style>
+</head>
+<body>
+    <h1>Szamárháromszög gyakorló</h1>
+    <div class="container">
+        <div id="task-text" class="task-box">Betöltés...</div>
+        <p class="instruction">Kattints a háromszögben arra a betűre, amit ki akarunk számolni!</p>
+        
+        <div class="triangle-wrapper">
+            <svg class="triangle-svg" viewBox="0 0 150 120" preserveAspectRatio="none">
+                <defs>
+                    <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 2 L 8 5 L 0 8 z" fill="#38bdf8" />
+                    </marker>
+                    <marker id="arrow-green" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 2 L 8 5 L 0 8 z" fill="#4ade80" />
+                    </marker>
+                </defs>
+                <polygon points="54,5 12,80 96,80" style="fill:#0f172a;stroke:#475569;stroke-width:2" />
+                <line x1="30" y1="48" x2="79" y2="48" style="stroke:#475569;stroke-width:2" />
+                <line x1="54" y1="48" x2="54" y2="80" style="stroke:#475569;stroke-width:2" />
+                <line x1="81" y1="48" x2="98" y2="48" style="stroke:#38bdf8;stroke-width:1.5" marker-end="url(#arrow-blue)" />
+                <text x="103" y="52" fill="#38bdf8" style="font-size:9px;font-weight:bold;font-family:'Segoe UI',sans-serif">osztás</text>
+                <line x1="54" y1="83" x2="54" y2="105" style="stroke:#4ade80;stroke-width:1.5" marker-end="url(#arrow-green)" />
+                <text x="54" y="116" fill="#4ade80" style="font-size:8px;font-weight:bold;font-family:'Segoe UI',sans-serif" text-anchor="middle">szorzás</text>
+            </svg>
+            <div id="node-top" class="node" onclick="selectNode('top')">m</div>
+            <div id="node-left" class="node rho-font" onclick="selectNode('left')">ρ</div>
+            <div id="node-right" class="node" onclick="selectNode('right')">V</div>
+        </div>
+
+        <div class="input-group">
+            <label for="formula-select">Helyes képlet:</label>
+            <select id="formula-select">
+                <option value="">-- Válassz képletet --</option>
+                <option value="top">m = ρ · V</option>
+                <option value="left">ρ = m / V</option>
+                <option value="right">V = m / ρ</option>
+            </select>
+            <div class="break"></div>
+            <label for="result-input">Végeredmény:</label>
+            <input type="number" id="result-input" style="width:80px" placeholder="érték">
+            <span id="unit-text"></span>
+        </div>
+        <div style="margin-top:15px">
+            <button onclick="checkAnswer()" style="padding:12px 25px">Ellenőrzés</button>
+            <button onclick="generateTask()" style="background-color:#475569">Új feladat</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+        <div id="score" class="score">Pontszám: 0 / 0</div>
+    </div>
+    <script>
+        const topicData={top:{label:'m',name:'Tömeg',unit:'kg'},left:{label:'<span class="rho-font">ρ</span>',name:'Sűrűség',unit:'kg/m³'},right:{label:'V',name:'Térfogat',unit:'m³'}};
+        let currentTarget='top',val1=0,val2=0,correctResult=0,selectedNodeId=null,score=0,total=0;
+        function selectNode(pos){selectedNodeId=pos;document.querySelectorAll('.node').forEach(n=>n.classList.remove('selected'));document.getElementById('node-'+pos).classList.add('selected')}
+        function resetSelection(){selectedNodeId=null;document.querySelectorAll('.node').forEach(n=>n.classList.remove('selected'))}
+        function generateTask(){
+            document.getElementById('feedback').innerText='';document.getElementById('result-input').value='';document.getElementById('formula-select').value='';resetSelection();
+            const positions=['top','left','right'];currentTarget=positions[Math.floor(Math.random()*positions.length)];
+            val1=Math.floor(Math.random()*9)+2;val2=Math.floor(Math.random()*8)+2;let text="";
+            if(currentTarget==='top'){
+                correctResult=val1*val2;
+                text=`Adott a <b>${topicData.left.name} (${topicData.left.label}) = ${val1} ${topicData.left.unit}</b> és a <b>${topicData.right.name} (${topicData.right.label}) = ${val2} ${topicData.right.unit}</b>.<br>Számítsd ki a <b>${topicData.top.name} (${topicData.top.label})</b> értékét!`;
+                document.getElementById('unit-text').innerText=topicData.top.unit;
+            }else if(currentTarget==='left'){
+                correctResult=val1;let topValue=val1*val2;
+                text=`Adott a <b>${topicData.top.name} (${topicData.top.label}) = ${topValue} ${topicData.top.unit}</b> és a <b>${topicData.right.name} (${topicData.right.label}) = ${val2} ${topicData.right.unit}</b>.<br>Számítsd ki a <b>${topicData.left.name} (${topicData.left.label})</b> értékét!`;
+                document.getElementById('unit-text').innerText=topicData.left.unit;
+            }else{
+                correctResult=val2;let topValue=val1*val2;
+                text=`Adott a <b>${topicData.top.name} (${topicData.top.label}) = ${topValue} ${topicData.top.unit}</b> és a <b>${topicData.left.name} (${topicData.left.label}) = ${val1} ${topicData.left.unit}</b>.<br>Számítsd ki a <b>${topicData.right.name} (${topicData.right.label})</b> értékét!`;
+                document.getElementById('unit-text').innerText=topicData.right.unit;
+            }
+            document.getElementById('task-text').innerHTML=text;
+        }
+        function checkAnswer(){
+            const feedback=document.getElementById('feedback'),userFormula=document.getElementById('formula-select').value,userResult=parseFloat(document.getElementById('result-input').value);
+            if(!selectedNodeId){feedback.className="feedback wrong";feedback.innerText="Hiba: Először takard le a keresett betűt a háromszögben!";return}
+            total++;
+            if(selectedNodeId!==currentTarget){feedback.className="feedback wrong";feedback.innerText="Sajnos nem ezt a betűt kell letakarnod!";updateScore();return}
+            if(userFormula!==currentTarget){feedback.className="feedback wrong";feedback.innerText="A letakarás alapján nem ezt a képletet kapjuk meg!";updateScore();return}
+            if(userResult===correctResult){feedback.className="feedback correct";feedback.innerText="Ügyes vagy! Hibátlan megoldás! 🎉";score++}
+            else{feedback.className="feedback wrong";feedback.innerText="A háromszöget és a képletet jól használtad, de a számolást elrontottad!"}
+            updateScore();
+        }
+        function updateScore(){document.getElementById('score').innerText=`Pontszám: ${score} / ${total}`}
+        window.onload=generateTask;
+    </script>
+</body>
+</html>
